@@ -16,7 +16,7 @@
   height: 100vh;
   background-color: var(--slate);
   color: var(--magnolia);
-  min-width: 500px;
+  width: 100vw;
 }
 
 h1 {
@@ -24,8 +24,15 @@ h1 {
   font-size: 40px;
 }
 
+#timers {
+  margin: 25px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 #time-adjustor {
-  margin: 20px 20px;
+  margin: 10px 20px;
   padding: 20px 20px;
   display: inline-block;
   text-align: center;
@@ -42,14 +49,28 @@ h1 {
   margin: 20px 0px 0px 0px;
 }
 
-.timer-text {
+.timer-box {
+  margin: 10px 20px;
+  display: inline-block;
+  text-align: center;
+  border: 2px solid var(--key-lime);
+  border-radius: 10px;
+}
+
+.timer-text-container {
   font-size: 50px;
-  margin: 10px 0px 0px 0px;
+  margin: 5px 0px 5px 0px;
+  padding: 10px 20px;
+}
+
+.timer-text {
+  margin: 0;
 }
 
 .controls {
   font-size: larger;
   font-weight: bold;
+  margin: 0px 0px 20px 0px;
 }
 
 .button {

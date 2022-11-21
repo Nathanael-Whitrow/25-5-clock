@@ -25,10 +25,8 @@ function TimeAdjustor(props) {
 
 function Timer() {
   return (
-    <div>
-      <div>
-        <p className='timer-text'>mm:ss</p>
-      </div>
+    <div className='timer-text-container'>
+      <p className='timer-text'>mm:ss</p>
     </div>
   )
 }
@@ -51,8 +49,10 @@ function App() {
         <TimeAdjustor text='Break Time' />
         <TimeAdjustor text='Session Time' />
       </span>
-      <Timer />
-      <Controls />
+      <div className='timer-box'>
+        <Timer />
+        <Controls />
+      </div>
     </div>
   );
 }
