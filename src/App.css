@@ -4,6 +4,8 @@
   --heliotrope: #CA7DF9;
   --blue: #724CF9;
   --slate: #564592;
+  --magnolia: #E9E7F1;
+  --white: white;
 }
 
 .App {
@@ -13,8 +15,50 @@
   align-items: center;
   height: 100vh;
   background-color: var(--slate);
+  color: var(--magnolia);
+  min-width: 500px;
 }
 
 h1 {
   margin: 0;
+  font-size: 40px;
+}
+
+#time-adjustor {
+  margin: 20px 20px;
+  padding: 20px 20px;
+  display: inline-block;
+  text-align: center;
+  border: 2px solid var(--orchid);
+  border-radius: 10px;
+}
+
+.title-2 {
+  margin: 0 0;
+  font-size: x-large;
+}
+
+.count-controls {
+  margin: 20px 0px 0px 0px;
+}
+
+.timer-text {
+  font-size: 50px;
+  margin: 10px 0px 0px 0px;
+}
+
+.controls {
+  font-size: larger;
+  font-weight: bold;
+}
+
+.button {
+  border: 1px solid var(--slate);
+  text-decoration: none;
+  color: var(--magnolia);
+  background-color: var(--slate);
+  margin: 0px 10px;
+  font-size: larger;
+  font-weight: bold;
+  border-radius: 5px;
 }
