@@ -4,7 +4,7 @@ import { faPlay, faPause, faArrowRotateLeft } from '@fortawesome/free-solid-svg-
 
 function Title() {
   return (
-    <div>
+    <div id='title'>
       <h1>25 + 5 Clock</h1>
     </div>
   )
@@ -26,7 +26,7 @@ function TimeAdjustor(props) {
 function Timer() {
   return (
     <div className='timer-text-container'>
-      <p className='timer-text'>mm:ss</p>
+      <p className='timer-text'>mm : ss</p>
     </div>
   )
 }
