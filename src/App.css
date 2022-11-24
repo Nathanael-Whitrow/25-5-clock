@@ -68,7 +68,9 @@ h1 {
   padding: 10px 20px;
 }
 
-.timer-text {
+
+#timer-label,
+#time-left {
   margin: 0;
 }
 
