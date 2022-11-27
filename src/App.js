@@ -12,6 +12,23 @@ function Title() {
 }
 
 function TimeAdjustor(props) {
+
+  const incrementSessionTime = () => {
+    // The + 1 is because session time has not updated yet (async)
+    if (props.time < 60) {
+      props.updateSession(prev => prev + 1);
+      props.updateRemaining((props.time + 1) * 60);
+    }
+  }
+
+  const decrementSessionTime = () => {
+    // The - 1 is because session time has not updated yet (async)
+    if (props.time > 1) {
+      props.updateSession(prev => prev - 1);
+      props.updateRemaining((props.time - 1) * 60);
+    }
+  }
+
   return (
     <div id="time-adjustor">
       <p id={props.id + '-label'} className="title-2">{props.text}</p>
@@ -19,7 +36,7 @@ function TimeAdjustor(props) {
         <button
           id={props.id + '-increment'}
           className='button button-up'
-          onClick={props.increment}
+          onClick={incrementSessionTime}
         >
           <i className='fa-solid fa-arrow-up'></i>
         </button>
@@ -34,7 +51,7 @@ function TimeAdjustor(props) {
         <button
           id={props.id + '-decrement'}
           className='button button-down'
-          onClick={props.decrement}
+          onClick={decrementSessionTime}
         >
           <i className='fa-solid fa-arrow-down'></i>
         </button>
@@ -44,62 +61,10 @@ function TimeAdjustor(props) {
 }
 
 function Timer(props) {
-  let minutes = Math.floor((props.time / 60)).toString();
-  let seconds = (props.time % 60).toString();
-
-  if (seconds.length === 1) {
-    seconds = '0'.concat(seconds);
-  }
-  if (minutes.length === 1) {
-    minutes = '0'.concat(minutes);
-  }
-  const timeLeft = minutes.concat(':').concat(seconds);
-
-  let text = 'Session';
-  if (!props.sessionFlag) {
-    text = 'Break';
-  }
-  if (props.time === 0) {
-    props.handleTimeout();
-  }
-  return (
-    <div className='timer-text-container'>
-      <p id='timer-label'>{text}</p>
-      <p id='time-left'>{timeLeft}</p>
-    </div>
-  )
-}
-
-function PlayControls(props) {
-
-  return (
-    <div className='controls'>
-      <button id='start_stop' className='button controls-play' onClick={props.click}>
-        <FontAwesomeIcon icon={faPlay} />
-        <FontAwesomeIcon icon={faPause} />
-      </button>
-      <button id='reset' className='button controls-restart'>
-        <FontAwesomeIcon icon={faArrowRotateLeft} />
-      </button>
-    </div>
-  )
-}
-
-function App() {
   const MS_PER_SECOND = 100;
-  const DEFAULT_BREAK_TIME = 1;
-  const DEFAULT_SESSION_TIME = 1;
-
-  const [breakTime, setBreakTime] = useState(DEFAULT_BREAK_TIME);
-  const [sessionTime, setSessionTime] = useState(DEFAULT_SESSION_TIME);
-
-  const [timeLeft, setTimeLeft] = useState(sessionTime * 60);
-  const [inSession, setInSession] = useState(true);
-
+  // State used for tracking countdown
   const [intervalId, setIntervalId] = useState(0);
 
-
-  // Thought: Do I need to hand the state stuff in as parameters?
   const handlePlayPause = () => {
     if (intervalId) {
       clearInterval(intervalId);
@@ -109,55 +74,65 @@ function App() {
 
     const newIntervalId = setInterval(() => {
       // This is where we count down
-      setTimeLeft(prev => prev - 1);
+      props.updateTime(prev => prev - 1);
     }, MS_PER_SECOND);
 
     setIntervalId(newIntervalId);
+  };
+
+  // const handleReset = () => { };
+
+  // Format time for display mm:ss
+  let minutes = Math.floor((props.time / 60)).toString();
+  let seconds = (props.time % 60).toString();
+
+  if (seconds.length === 1) {
+    seconds = '0'.concat(seconds);
   }
-
-  const timeout = () => {
-    console.log(timeLeft, 'TIMEOUT!');
-    // Swap from session to break
-    clearInterval(intervalId);
-    setIntervalId(0);
-    inSession ? setTimeLeft(breakTime) : setTimeLeft(sessionTime);
-    setInSession(!inSession);
-    // handlePlayPause();
+  if (minutes.length === 1) {
+    minutes = '0'.concat(minutes);
   }
+  const formattedTime = minutes.concat(':').concat(seconds);
 
-  const incrementSessionTime = () => {
-    if (sessionTime < 60) {
-      // The + 1 is because session time has not updated yet (async)
-      setTimeLeft(() => (sessionTime + 1) * 60);
-      setSessionTime((prev) => prev + 1);
-    }
-    return;
-  }
+  return (
+    <div>
+      <div className='timer-text-container'>
+        <p id='timer-label'>Session</p>
+        <p id='time-left'>{formattedTime}</p>
+      </div>
+      <div className='controls'>
+        <button id='start_stop' className='button controls-play' onClick={handlePlayPause}>
+          <FontAwesomeIcon icon={faPlay} />
+          <FontAwesomeIcon icon={faPause} />
+        </button>
+        <button id='reset' className='button controls-restart'>
+          <FontAwesomeIcon icon={faArrowRotateLeft} />
+        </button>
+      </div>
+    </div>
+  )
+}
 
-  const decrementSessionTime = () => {
-    if (sessionTime > 1) {
-      // The - 1 is because session time has not updated yet (async)
-      setTimeLeft(() => (sessionTime - 1) * 60);
-      setSessionTime((prev) => prev - 1);
-    }
-    return;
-  }
-
-  const incrementBreakTime = () => breakTime < 60 ? setBreakTime((prev) => prev + 1) : setBreakTime((prev) => prev);
-  const decrementBreakTime = () => breakTime > 1 ? setBreakTime((prev) => prev - 1) : setBreakTime((prev) => prev);
-
-
+function App() {
+  const DEFAULT_SESSION_TIME = 1;
+  const [sessionTime, setSessionTime] = useState(DEFAULT_SESSION_TIME);
+  const [timeLeft, setTimeLeft] = useState(sessionTime * 60);
 
   return (
     <div className="App">
       <Title />
       <span id="timers">
-        <TimeAdjustor id='break' text='Break Length' time={breakTime} increment={incrementBreakTime} decrement={decrementBreakTime} />
-        <TimeAdjustor id='session' text='Session Time' time={sessionTime} increment={incrementSessionTime} decrement={decrementSessionTime} />
+        <TimeAdjustor
+          id='session'
+          text='Session Time'
+          time={sessionTime}
+          updateSession={setSessionTime}
+          updateRemaining={setTimeLeft}
+        />
       </span>
       <div className='timer-box'>
-        <Timer time={timeLeft} sessionFlag={inSession} handleTimeout={timeout} />
-        <PlayControls click={handlePlayPause} />
+        <Timer time={timeLeft} updateTime={setTimeLeft} />
+
       </div>
     </div>
   );
