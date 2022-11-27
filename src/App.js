@@ -59,7 +59,9 @@ function Timer(props) {
   if (!props.sessionFlag) {
     text = 'Break';
   }
-
+  if (props.time === 0) {
+    props.handleTimeout();
+  }
   return (
     <div className='timer-text-container'>
       <p id='timer-label'>{text}</p>
@@ -84,8 +86,9 @@ function PlayControls(props) {
 }
 
 function App() {
-  const DEFAULT_BREAK_TIME = 58;
-  const DEFAULT_SESSION_TIME = 58;
+  const MS_PER_SECOND = 100;
+  const DEFAULT_BREAK_TIME = 1;
+  const DEFAULT_SESSION_TIME = 1;
 
   const [breakTime, setBreakTime] = useState(DEFAULT_BREAK_TIME);
   const [sessionTime, setSessionTime] = useState(DEFAULT_SESSION_TIME);
@@ -94,41 +97,32 @@ function App() {
   const [inSession, setInSession] = useState(true);
 
   const [intervalId, setIntervalId] = useState(0);
-  const [timeoutId, setTimeoutId] = useState(0);
 
 
   // Thought: Do I need to hand the state stuff in as parameters?
   const handlePlayPause = () => {
-    if (intervalId && timeoutId) {
+    if (intervalId) {
       clearInterval(intervalId);
       setIntervalId(0);
-      clearTimeout(timeoutId);
-      setTimeoutId(0);
       return;
     }
 
-    const newTimeoutId = setTimeout((newTime, iID) => {
-      setTimeLeft(() => newTime * 60);
-      setInSession(() => false);
-      clearInterval(iID);
-      console.log('Timeout!');
-      return;
-    }, timeLeft * 100, breakTime, intervalId);
-    setTimeoutId(newTimeoutId);
-
     const newIntervalId = setInterval(() => {
       // This is where we count down
-      console.log(timeLeft, ':', inSession);
-      if (timeLeft === 0 && !inSession) {
-        // Session and Break have counted down to zero
-        // ????
-      }
-      else {
-        setTimeLeft(prev => prev - 1);
-      }
+      setTimeLeft(prev => prev - 1);
+    }, MS_PER_SECOND);
 
-    }, 100);
     setIntervalId(newIntervalId);
+  }
+
+  const timeout = () => {
+    console.log(timeLeft, 'TIMEOUT!');
+    // Swap from session to break
+    clearInterval(intervalId);
+    setIntervalId(0);
+    inSession ? setTimeLeft(breakTime) : setTimeLeft(sessionTime);
+    setInSession(!inSession);
+    // handlePlayPause();
   }
 
   const incrementSessionTime = () => {
@@ -152,6 +146,8 @@ function App() {
   const incrementBreakTime = () => breakTime < 60 ? setBreakTime((prev) => prev + 1) : setBreakTime((prev) => prev);
   const decrementBreakTime = () => breakTime > 1 ? setBreakTime((prev) => prev - 1) : setBreakTime((prev) => prev);
 
+
+
   return (
     <div className="App">
       <Title />
@@ -160,7 +156,7 @@ function App() {
         <TimeAdjustor id='session' text='Session Time' time={sessionTime} increment={incrementSessionTime} decrement={decrementSessionTime} />
       </span>
       <div className='timer-box'>
-        <Timer time={timeLeft} sessionFlag={inSession} />
+        <Timer time={timeLeft} sessionFlag={inSession} handleTimeout={timeout} />
         <PlayControls click={handlePlayPause} />
       </div>
     </div>
