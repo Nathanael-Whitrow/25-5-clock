@@ -12,23 +12,6 @@ function Title() {
 }
 
 function TimeAdjustor(props) {
-
-  const incrementSessionTime = () => {
-    // The + 1 is because session time has not updated yet (async)
-    if (props.time < 60 && !props.running) {
-      props.updateSession(prev => prev + 1);
-      props.updateRemaining((props.time + 1) * 60);
-    }
-  }
-
-  const decrementSessionTime = () => {
-    // The - 1 is because session time has not updated yet (async)
-    if (props.time > 1 && !props.running) {
-      props.updateSession(prev => prev - 1);
-      props.updateRemaining((props.time - 1) * 60);
-    }
-  }
-
   return (
     <div id="time-adjustor">
       <p id={props.id + '-label'} className="title-2">{props.text}</p>
@@ -36,7 +19,7 @@ function TimeAdjustor(props) {
         <button
           id={props.id + '-increment'}
           className='button button-up'
-          onClick={incrementSessionTime}
+          onClick={props.increment}
         >
           <i className='fa-solid fa-arrow-up'></i>
         </button>
@@ -51,7 +34,7 @@ function TimeAdjustor(props) {
         <button
           id={props.id + '-decrement'}
           className='button button-down'
-          onClick={decrementSessionTime}
+          onClick={props.decrement}
         >
           <i className='fa-solid fa-arrow-down'></i>
         </button>
@@ -61,9 +44,10 @@ function TimeAdjustor(props) {
 }
 
 function Timer(props) {
-  const MS_PER_SECOND = 100;
+  const MS_PER_SECOND = 1000;
   // State used for tracking countdown
   const [intervalId, setIntervalId] = useState(0);
+  const [inSession, setInSession] = useState(true);
 
   const handlePlayPause = () => {
     if (intervalId) {
@@ -86,20 +70,29 @@ function Timer(props) {
   useEffect(() => {
     if (intervalId && props.time === 0) {
       document.getElementById("beep").play();
-      props.updateTime(props.sessionTime * 60);
+      if (inSession) {
+        props.updateTime(props.breakTime * 60);
+        setInSession(false);
+      }
+      else {
+        props.updateTime(props.sessionTime * 60);
+        setInSession(true);
+      }
     }
-  });
+  }, [intervalId, props, inSession]);
 
   const handleReset = () => {
     // Stop the countdown
     if (intervalId) {
       clearInterval(intervalId);
       setIntervalId(0);
-      props.setIsRunning(false);
+      props.setRunning(false);
     }
     // Set timer to default time
-    props.updateSessionTime(props.defaultTime);
-    props.updateTime(props.defaultTime * 60);
+    props.updateSessionTime(props.defaultSessionTime);
+    props.updateBreakTime(props.defaultBreakTime);
+    props.updateTime(props.defaultSessionTime * 60);
+    setInSession(true);
   };
 
 
@@ -115,10 +108,15 @@ function Timer(props) {
   }
   const formattedTime = minutes.concat(':').concat(seconds);
 
+  let text = 'Session';
+  if (!inSession) {
+    text = 'Break';
+  }
+
   return (
     <div>
       <div className='timer-text-container'>
-        <p id='timer-label'>Session</p>
+        <p id='timer-label'>{text}</p>
         <p id='time-left'>{formattedTime}</p>
       </div>
       <div className='controls'>
@@ -139,10 +137,40 @@ function Timer(props) {
 }
 
 function App() {
-  const DEFAULT_SESSION_TIME = 1;
+  const DEFAULT_SESSION_TIME = 25;
+  const DEFAULT_BREAK_TIME = 5;
   const [sessionTime, setSessionTime] = useState(DEFAULT_SESSION_TIME);
+  const [breakTime, setBreakTime] = useState(DEFAULT_BREAK_TIME);
   const [timeLeft, setTimeLeft] = useState(sessionTime * 60);
   const [isRunning, setIsRunning] = useState(false);
+
+  const incrementSessionTime = () => {
+    // The + 1 is because session time has not updated yet (async)
+    if (sessionTime < 60 && !isRunning) {
+      setSessionTime(prev => prev + 1);
+      setTimeLeft((sessionTime + 1) * 60);
+    }
+  }
+
+  const decrementSessionTime = () => {
+    // The - 1 is because session time has not updated yet (async)
+    if (sessionTime > 1 && !isRunning) {
+      setSessionTime(prev => prev - 1);
+      setTimeLeft((sessionTime - 1) * 60);
+    }
+  }
+
+  const incrementBreakTime = () => {
+    if (breakTime < 60 && !isRunning) {
+      setBreakTime(prev => prev + 1);
+    }
+  }
+
+  const decrementBreakTime = () => {
+    if (breakTime > 1 && !isRunning) {
+      setBreakTime(prev => prev - 1);
+    }
+  }
 
   return (
     <div className="App">
@@ -151,10 +179,16 @@ function App() {
         <TimeAdjustor
           id='session'
           text='Session Time'
+          increment={incrementSessionTime}
+          decrement={decrementSessionTime}
           time={sessionTime}
-          updateSession={setSessionTime}
-          updateRemaining={setTimeLeft}
-          running={isRunning}
+        />
+        <TimeAdjustor
+          id='break'
+          text='Break Time'
+          increment={incrementBreakTime}
+          decrement={decrementBreakTime}
+          time={breakTime}
         />
       </span>
       <div className='timer-box'>
@@ -163,7 +197,10 @@ function App() {
           updateTime={setTimeLeft}
           sessionTime={sessionTime}
           updateSessionTime={setSessionTime}
-          defaultTime={DEFAULT_SESSION_TIME}
+          defaultSessionTime={DEFAULT_SESSION_TIME}
+          breakTime={breakTime}
+          updateBreakTime={setBreakTime}
+          defaultBreakTime={DEFAULT_BREAK_TIME}
           setRunning={setIsRunning}
         />
       </div>
