@@ -82,6 +82,12 @@ function Timer(props) {
 
   // const handleReset = () => { };
 
+  // Check if we're at zero
+  if (intervalId && props.time === 0) {
+    clearInterval(intervalId);
+    setIntervalId(0);
+  }
+
   // Format time for display mm:ss
   let minutes = Math.floor((props.time / 60)).toString();
   let seconds = (props.time % 60).toString();
@@ -131,8 +137,10 @@ function App() {
         />
       </span>
       <div className='timer-box'>
-        <Timer time={timeLeft} updateTime={setTimeLeft} />
-
+        <Timer
+          time={timeLeft}
+          updateTime={setTimeLeft}
+        />
       </div>
     </div>
   );
