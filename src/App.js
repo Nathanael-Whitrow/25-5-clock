@@ -85,6 +85,7 @@ function Timer(props) {
 
   useEffect(() => {
     if (intervalId && props.time === 0) {
+      document.getElementById("beep").play();
       props.updateTime(props.sessionTime * 60);
     }
   });
@@ -166,8 +167,10 @@ function App() {
           setRunning={setIsRunning}
         />
       </div>
+      <audio id="beep" preload="auto" src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"></audio>
     </div>
   );
 }
 
 export default App;
+
