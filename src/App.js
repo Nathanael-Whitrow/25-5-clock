@@ -69,7 +69,7 @@ function Timer(props) {
 
   useEffect(() => {
     if (intervalId && props.time === 0) {
-      document.getElementById("beep").play();
+      document.getElementById('beep').play();
       if (inSession) {
         props.updateTime(props.breakTime * 60);
         setInSession(false);
@@ -93,6 +93,11 @@ function Timer(props) {
     props.updateBreakTime(props.defaultBreakTime);
     props.updateTime(props.defaultSessionTime * 60);
     setInSession(true);
+    const myAudio = document.getElementById('beep');
+    if (!myAudio.paused) {
+      myAudio.pause();
+      myAudio.currentTime = 0;
+    }
   };
 
 
