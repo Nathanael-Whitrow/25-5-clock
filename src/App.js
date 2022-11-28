@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faPause, faArrowRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
@@ -15,7 +15,7 @@ function TimeAdjustor(props) {
 
   const incrementSessionTime = () => {
     // The + 1 is because session time has not updated yet (async)
-    if (props.time < 60) {
+    if (props.time < 60 && !props.running) {
       props.updateSession(prev => prev + 1);
       props.updateRemaining((props.time + 1) * 60);
     }
@@ -23,7 +23,7 @@ function TimeAdjustor(props) {
 
   const decrementSessionTime = () => {
     // The - 1 is because session time has not updated yet (async)
-    if (props.time > 1) {
+    if (props.time > 1 && !props.running) {
       props.updateSession(prev => prev - 1);
       props.updateRemaining((props.time - 1) * 60);
     }
@@ -69,8 +69,11 @@ function Timer(props) {
     if (intervalId) {
       clearInterval(intervalId);
       setIntervalId(0);
+      props.setRunning(false);
       return;
     }
+
+    props.setRunning(true);
 
     const newIntervalId = setInterval(() => {
       // This is where we count down
@@ -80,13 +83,24 @@ function Timer(props) {
     setIntervalId(newIntervalId);
   };
 
-  // const handleReset = () => { };
+  useEffect(() => {
+    if (intervalId && props.time === 0) {
+      props.updateTime(props.sessionTime * 60);
+    }
+  });
 
-  // Check if we're at zero
-  if (intervalId && props.time === 0) {
-    clearInterval(intervalId);
-    setIntervalId(0);
-  }
+  const handleReset = () => {
+    // Stop the countdown
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(0);
+      props.setIsRunning(false);
+    }
+    // Set timer to default time
+    props.updateSessionTime(props.defaultTime);
+    props.updateTime(props.defaultTime * 60);
+  };
+
 
   // Format time for display mm:ss
   let minutes = Math.floor((props.time / 60)).toString();
@@ -111,7 +125,11 @@ function Timer(props) {
           <FontAwesomeIcon icon={faPlay} />
           <FontAwesomeIcon icon={faPause} />
         </button>
-        <button id='reset' className='button controls-restart'>
+        <button
+          id='reset'
+          className='button controls-restart'
+          onClick={handleReset}
+        >
           <FontAwesomeIcon icon={faArrowRotateLeft} />
         </button>
       </div>
@@ -123,6 +141,7 @@ function App() {
   const DEFAULT_SESSION_TIME = 1;
   const [sessionTime, setSessionTime] = useState(DEFAULT_SESSION_TIME);
   const [timeLeft, setTimeLeft] = useState(sessionTime * 60);
+  const [isRunning, setIsRunning] = useState(false);
 
   return (
     <div className="App">
@@ -134,12 +153,17 @@ function App() {
           time={sessionTime}
           updateSession={setSessionTime}
           updateRemaining={setTimeLeft}
+          running={isRunning}
         />
       </span>
       <div className='timer-box'>
         <Timer
           time={timeLeft}
           updateTime={setTimeLeft}
+          sessionTime={sessionTime}
+          updateSessionTime={setSessionTime}
+          defaultTime={DEFAULT_SESSION_TIME}
+          setRunning={setIsRunning}
         />
       </div>
     </div>
