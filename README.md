@@ -18,7 +18,7 @@ The concept behind the 25+5 Clock is to break your work into manageable interval
 
 ## Getting Started
 
-To use the 25+5 Clock, simply open the web app in your browser. Adjust the work and break durations using the provided controls. Click the start button to initiate the timer and begin your work sessions. Make sure to follow the prompts and take breaks when indicated to maximize your productivity.
+To use the 25+5 Clock, simply open the web app in your browser by clicking [here](https://nathanael-whitrow.github.io/25-5-clock/). Adjust the work and break durations using the provided controls. Click the start button to initiate the timer and begin your work sessions. Make sure to follow the prompts and take breaks when indicated to maximize your productivity.
 
 Start managing your time effectively and staying focused with the 25+5 Clock!
 
